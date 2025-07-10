@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "ifood-processo-seletivo"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "2.32.3"
+ijson = "3.2.3"
+duckdb = "0.10.2"
+pandas = "^2.3.1"
+pyarrow = "^20.0.0"
+fastparquet = "^2024.11.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
