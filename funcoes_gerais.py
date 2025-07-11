@@ -1,19 +1,23 @@
 import os
 import requests
 import gzip
+import json
 import ijson
 import pandas as pd
 import duckdb
 
+
 class funcoesGerais():
 
-    def __init__(self, output_dir, url_s3):
-        self.extractor = SimpleS3Extractor()
-        self.json_chunks_prefix = "orders/part-"
+    def __init__(self, output_dir, url_s3_orders, url_s3_consumers, url_s3_merchants, url_s3_ab_test, n_chunks_in_s3=10, final_file_name="orders_final.parquet"):
         self.output_dir = output_dir
+        self.url_s3_orders = url_s3_orders
+        self.url_s3_consumers = url_s3_consumers
+        self.url_s3_merchants = url_s3_merchants
+        self.url_s3_ab_test = url_s3_ab_test
+        self.json_chunks_prefix = "orders/part-"
         self.n_chunks_in_s3 = n_chunks_in_s3
         self.final_file_name = final_file_name
-        self.url_s3 = url_s3
     
     def _create_new_directory(self):
         """
