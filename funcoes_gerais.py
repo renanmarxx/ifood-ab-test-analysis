@@ -34,9 +34,18 @@ class FuncoesGerais:
 
     def _create_new_directory(self):
         """
-        Cria o diretório de saída se não existir.
+        Cria o diretório de saída dos arquivos. Se já existir, limpa todos os arquivos e subdiretórios dentro dele.
         """
-        os.makedirs(self.output_dir, exist_ok=True)
+    
+        if os.path.exists(self.output_dir):
+            for filename in os.listdir(self.output_dir):
+                file_path = os.path.join(self.output_dir, filename)
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.remove(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+        else:
+            os.makedirs(self.output_dir, exist_ok=True)
 
     def download_and_decompress_gz(self, url, output_path, chunk_size=1024*1024):
         """
