@@ -41,7 +41,7 @@ class FuncoesGerais:
 
         if os.path.exists(self.output_dir):
             
-            print(f"Diretório {self.output_dir} já existe. Limpando arquivos antigos...")
+            print(f"Diretório {self.output_dir} já existe. Limpando arquivos antigos...", end = ' ')
 
             for filename in os.listdir(self.output_dir):
                 file_path = os.path.join(self.output_dir, filename)
@@ -49,6 +49,10 @@ class FuncoesGerais:
                     os.remove(file_path)
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)
+
+            print(f"Diretório {self.output_dir} limpo.")
+
+
         else:
             print(f"Criando diretório: {self.output_dir}")
             os.makedirs(self.output_dir, exist_ok=True)
@@ -58,7 +62,7 @@ class FuncoesGerais:
         Baixa e descompacta um arquivo .gz a partir de uma URL.
         """
 
-        print(f"Baixando e descompactando arquivo: {url} ...")
+        print(f"Baixando e descompactando arquivo: {url} ...", end = ' ')
 
         with requests.get(url, stream=True) as r:
             r.raise_for_status()
@@ -69,6 +73,9 @@ class FuncoesGerais:
                         if not chunk:
                             break
                         out_f.write(chunk)
+        
+        print(f"Arquivo descompactado em: {output_path}")
+
         print(f"Download e descompactação finalizados em: {output_path}")
 
     def download_and_extract_tar(self, url, dest_dir):
@@ -107,6 +114,15 @@ class FuncoesGerais:
                     break
         print(f"Total processado: {count}")
 
+    def _check_column_types(self, df, file_idx):
+        """
+        Verifica colunas com tipos mistos e exibe um alerta.
+        """
+        for col in df.columns:
+            types = df[col].map(type).unique()
+            if len(types) > 1:
+                print(f"[ALERTA] Coluna '{col}' no chunk {file_idx} possui tipos mistos: {types}")
+    
     def split_jsonlines_to_parquet(self, json_path, output_dir = None, target_size_mb = 125):
         """
         Divide um arquivo JSON em vários arquivos Parquet menores.
@@ -128,40 +144,61 @@ class FuncoesGerais:
                 bytes_so_far += len(line.encode('utf-8'))
                 if bytes_so_far >= max_size_bytes:
                     df = pd.DataFrame(chunk)
+                    self._check_column_types(df, file_idx)
+
+                    # Tratamento de colunas 
+                    df['customer_id'] = df['customer_id'].astype(str)
+                    df['order_scheduled_date'] = df['order_scheduled_date'].astype(str)
+                    if 'origin_platform' in df.columns:
+                        df['origin_platform'] = df['origin_platform'].astype(str)
+
+                    for col in ['customer_id', 'order_scheduled_date', 'origin_platform']:
+                        if col in df.columns:
+                            df[col] = df[col].fillna("").astype(str)
+                        
+                        elif col not in df.columns:
+                            df[col] = ""
+                        
+                        else:
+                            print("")
+                    
+
                     parquet_path = os.path.join(output_dir, f'orders_part_{file_idx:03d}.parquet')
                     df.to_parquet(parquet_path, index=False)
                     print(f"Salvou: {parquet_path} (~{bytes_so_far/1024/1024:.2f} MB)")
                     chunk = []
                     bytes_so_far = 0
                     file_idx += 1
+
             # Salva o que restou
             if chunk:
                 df = pd.DataFrame(chunk)
+                self._check_column_types(df, file_idx)
+
+                # Tratamento de colunas 
+                #df['customer_id'] = df['customer_id'].astype(str)
+                #df['order_scheduled_date'] = df['order_scheduled_date'].astype(str)
+                #if 'origin_platform' in df.columns:
+                #    df['origin_platform'] = df['origin_platform'].astype(str)
+
+                #for col in ['customer_id', 'order_scheduled_date', 'origin_platform']:
+                #    if col in df.columns:
+                #        df[col] = df[col].fillna("").astype(str)
+                #    
+                #    elif col not in df.columns:
+                #        df[col] = ""
+                #    
+                #    else:
+                #        print("")
+
                 parquet_path = os.path.join(output_dir, f'orders_part_{file_idx:03d}.parquet')
                 df.to_parquet(parquet_path, index=False)
                 print(f"Salvou: {parquet_path} (final)")
 
         print("Separação em chunks feita com sucesso!")
 
+
     def concat_chunks_into_single_file(self, input_dir=None, output_file=None):
-        """
-        Concatena todos os arquivos Parquet em um único arquivo Parquet.
-        """
-
-        if input_dir is None:
-            input_dir = os.path.join(self.output_dir, "orders")
-        if output_file is None:
-            output_file = os.path.join(input_dir, self.final_file_name)
-
-        input_path = os.path.join(input_dir, "*.parquet")
-
-        print("Concatenando os arquivos em um único arquivo .parquet\n")
-        duckdb.sql(f"""
-            COPY(SELECT * FROM '{input_path}') TO '{output_file}' (FORMAT PARQUET)
-        """)
-        print(f"Arquivo: {output_file} gerado com sucesso!")
-
-    def concat_chunks_into_single_file2(self, input_dir=None, output_file=None):
         """
         Concatena todos os arquivos Parquet em um único arquivo Parquet de forma eficiente.
         """
@@ -175,9 +212,63 @@ class FuncoesGerais:
         input_paths = sorted(glob.glob(os.path.join(input_dir, "*.parquet")))
 
         con = duckdb.connect()
-        con.execute(f"CREATE TABLE temp_table AS SELECT * FROM read_parquet('{input_paths[0]}')")
+        con.execute(f"""CREATE TABLE temp_table AS 
+                    SELECT
+                        cast(cpf AS VARCHAR) AS cpf
+                        ,cast(customer_id AS VARCHAR) AS customer_id
+                        ,cast(customer_name AS VARCHAR) AS customer_name
+                        ,cast(delivery_address_city as VARCHAR) AS delivery_address_city
+                        ,cast(delivery_address_country as VARCHAR) AS delivery_address_country
+                        ,cast(delivery_address_district as VARCHAR) AS delivery_address_district
+                        ,cast(delivery_address_external_id as VARCHAR) AS delivery_address_external_id
+                        ,cast(delivery_address_latitude as FLOAT) AS delivery_address_latitude
+                        ,cast(delivery_address_longitude as FLOAT) AS delivery_address_longitude
+                        ,cast(delivery_address_state as VARCHAR) AS delivery_address_state
+                        ,cast(delivery_address_zip_code as VARCHAR) AS delivery_address_zip_code
+                        ,cast(items as VARCHAR) AS items
+                        ,cast(merchant_id as VARCHAR) AS merchant_id
+                        ,cast(merchant_latitude as FLOAT) AS merchant_latitude
+                        ,cast(merchant_longitude as FLOAT) AS merchant_longitude
+                        ,cast(merchant_timezone as VARCHAR) AS merchant_timezone
+                        ,cast(order_created_at as TIMESTAMP) AS order_created_at
+                        ,cast(order_id as VARCHAR) AS order_id
+                        ,cast(order_scheduled as BOOL) AS order_scheduled
+                        ,cast(order_total_amount as FLOAT) AS order_total_amount
+                        ,cast(origin_platform as VARCHAR) AS origin_platform
+                        ,cast(order_scheduled_date as TIMESTAMP) AS order_scheduled_date
+                    
+                    FROM 
+                        read_parquet('{input_paths[0]}')
+                    """)
         for parquet_file in input_paths[1:]:
-            con.execute(f"INSERT INTO temp_table SELECT * FROM read_parquet('{parquet_file}')")
+            con.execute(f"""INSERT INTO temp_table 
+                        SELECT 
+                            cast(cpf AS VARCHAR) AS cpf
+                            ,cast(customer_id AS VARCHAR) AS customer_id
+                            ,cast(customer_name AS VARCHAR) AS customer_name
+                            ,cast(delivery_address_city as VARCHAR) AS delivery_address_city
+                            ,cast(delivery_address_country as VARCHAR) AS delivery_address_country
+                            ,cast(delivery_address_district as VARCHAR) AS delivery_address_district
+                            ,cast(delivery_address_external_id as VARCHAR) AS delivery_address_external_id
+                            ,cast(delivery_address_latitude as FLOAT) AS delivery_address_latitude
+                            ,cast(delivery_address_longitude as FLOAT) AS delivery_address_longitude
+                            ,cast(delivery_address_state as VARCHAR) AS delivery_address_state
+                            ,cast(delivery_address_zip_code as VARCHAR) AS delivery_address_zip_code
+                            ,cast(items as VARCHAR) AS items
+                            ,cast(merchant_id as VARCHAR) AS merchant_id
+                            ,cast(merchant_latitude as FLOAT) AS merchant_latitude
+                            ,cast(merchant_longitude as FLOAT) AS merchant_longitude
+                            ,cast(merchant_timezone as VARCHAR) AS merchant_timezone
+                            ,cast(order_created_at as TIMESTAMP) AS order_created_at
+                            ,cast(order_id as VARCHAR) AS order_id
+                            ,cast(order_scheduled as BOOL) AS order_scheduled
+                            ,cast(order_total_amount as FLOAT) AS order_total_amount
+                            ,cast(origin_platform as VARCHAR) AS origin_platform
+                            ,cast(order_scheduled_date as TIMESTAMP) AS order_scheduled_date
+
+                        FROM 
+                            read_parquet('{parquet_file}')
+                        """)
         con.execute(f"COPY temp_table TO '{output_file}' (FORMAT PARQUET)")
         con.close()
         print(f"Arquivo: {output_file} gerado com sucesso!")

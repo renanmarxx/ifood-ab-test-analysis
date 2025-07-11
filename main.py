@@ -13,7 +13,7 @@ def main():
     url_s3_merchants = os.getenv("URL_S3_MERCHANTS")
     url_s3_ab_test = os.getenv("URL_S3_AB_TEST")
 
-    print("2. Instacia de classe e variaveis iniciais")
+    print("2. Faz a instancia de classe e variaveis iniciais")
     fg = FuncoesGerais(
         output_dir = output_dir,
         url_s3_orders = url_s3_orders,
@@ -50,7 +50,7 @@ def main():
     fg.split_jsonlines_to_parquet(os.path.join(fg.output_dir, "order.json"))
 
     print("7. Concatena os arquivos Parquet em um único arquivo parquet para facilitar a leitura")
-    fg.concat_chunks_into_single_file2()
+    fg.concat_chunks_into_single_file()
 
     print("8. Deleta os arquivos chunks para reduzir espaço em memória ocupado - opcional")
     fg.delete_chunks()
@@ -58,15 +58,15 @@ def main():
     print("9. Gera os dataframes a partir dos arquivos para realizar as análises")
     con = duckdb.connect()
 
-    alias_json = os.path.join(fg.output_dir, "orders", fg.final_file_name)
-    alias_csv1 = os.path.join(fg.output_dir, "restaurant.csv")
-    alias_csv2 = os.path.join(fg.output_dir, "consumer.csv")
-    alias_tar = os.path.join(fg.output_dir, "ab_test_ref.csv")
+    #alias_json = os.path.join(fg.output_dir, "orders", fg.final_file_name)
+    #alias_csv1 = os.path.join(fg.output_dir, "restaurant.csv")
+    #alias_csv2 = os.path.join(fg.output_dir, "consumer.csv")
+    #alias_tar = os.path.join(fg.output_dir, "ab_test_ref.csv")
 
-    df_json = con.execute(f"SELECT * FROM '{alias_json}' ").df()
-    df_csv1 = con.execute(f"""SELECT * FROM read_csv_auto('{alias_csv1}', delim=',', quote='"', escape='\\') """).df()
-    df_csv2 = con.execute(f"""SELECT * FROM read_csv_auto('{alias_csv2}', delim=',', quote='"', escape='\\') """).df()
-    df_tar = con.execute(f"SELECT * FROM '{alias_tar}' ").df()
+    #df_json = con.execute(f"SELECT * FROM '{alias_json}' ").df()
+    #df_csv1 = con.execute(f"""SELECT * FROM read_csv_auto('{alias_csv1}', delim=',', quote='"', escape='\\') """).df()
+    #df_csv2 = con.execute(f"""SELECT * FROM read_csv_auto('{alias_csv2}', delim=',', quote='"', escape='\\') """).df()
+    #df_tar = con.execute(f"SELECT * FROM '{alias_tar}' ").df()
 
 if __name__ == "__main__":
     
