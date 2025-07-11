@@ -1,81 +1,65 @@
-import requests
-import gzip
 import os
-import shutil
-import tarfile
-import ijson
-import pandas as pd
-import json
-import duckdb
 from dotenv import load_dotenv
-
-from ifood_processo_seletivo.funcoes_gerais import funcoesGerais
+from funcoes_gerais import FuncoesGerais
+import duckdb
 
 def main():
-    
-    # Instancia a classe de funcoes
-    fg = funcoesGerais()
-
-    # Carrega as variáveis de ambiente do arquivo .env
+    # Carrega variáveis de ambiente
     load_dotenv()
+    output_dir = "./data"
     url_s3_orders = os.getenv("URL_S3_ORDERS")
     url_s3_consumers = os.getenv("URL_S3_CONSUMERS")
     url_s3_merchants = os.getenv("URL_S3_MERCHANTS")
     url_s3_ab_test = os.getenv("URL_S3_AB_TEST")
 
-    # Cria dicionario com as URLs e tipos dos arquivos
+    fg = FuncoesGerais(
+        output_dir = output_dir,
+        url_s3_orders = url_s3_orders,
+        url_s3_consumers = url_s3_consumers,
+        url_s3_merchants = url_s3_merchants,
+        url_s3_ab_test = url_s3_ab_test,
+        n_chunks_in_s3 = 10,
+        final_file_name = "orders_final.parquet"
+    )
+
+    # Cria dicionário com as URLs e tipos dos arquivos
     URLS = {
-        "orders": {
-            "url": url_s3_orders,
-            "type": "json"
-        },
-        "consumers": {
-            "url": url_s3_consumers,
-            "type": "csv"
-        },
-        "restaurants": {
-            "url": url_s3_merchants,
-            "type": "csv"
-        },
-        "ab_test": {
-            "url": url_s3_ab_test,
-            "type": "tar"
-        }
+        "orders": {"url": fg.url_s3_orders, "type": "json"},
+        "consumers": {"url": fg.url_s3_consumers, "type": "csv"},
+        "restaurants": {"url": fg.url_s3_merchants, "type": "csv"},
+        "ab_test": {"url": fg.url_s3_ab_test, "type": "tar"}
     }
 
-    # Define variáveis dos diretórios e arquivos
-    output_dir = "data"
-    os.makedirs(output_dir, exist_ok=True)
-
-    
+    # Cria o diretório de saída dos arquivos se não existir
+    fg._create_new_directory()
 
     # Baixa e processa todos os arquivos
     for name, info in URLS.items():
         url = info["url"]
         file_type = info["type"]
         if file_type == "tar":
-            fg.download_and_extract_tar(url, output_dir)
+            fg.download_and_extract_tar(url, fg.output_dir)
         else:
             filename = os.path.basename(url)[:-3] if url.endswith('.gz') else os.path.basename(url)
-            output_path = os.path.join(output_dir, filename)
+            output_path = os.path.join(fg.output_dir, filename)
             fg.download_and_decompress_gz(url, output_path)
 
     # Processa o arquivo JSON em streaming e converte em chunks para Parquet
-    fg.split_jsonlines_to_parquet('./data/order.json', './data/orders', target_size_mb=250)
+    fg.split_jsonlines_to_parquet(os.path.join(fg.output_dir, "order.json"))
 
     # Concatena os arquivos Parquet em um único arquivo parquet para facilitar a leitura
-    fg.concat_chunks_into_single_file('./data/order.json', './data/orders', target_size_mb=250)
+    fg.concat_chunks_into_single_file()
 
     # Deleta os arquivos chunks para reduzir espaço em memória ocupado - opcional
-    fg.delete_chunks('./data/order.json', './data/orders', target_size_mb=250)
+    fg.delete_chunks()
 
     # Gera os dataframes a partir dos arquivos para realizar as análises
     con = duckdb.connect()
 
-    alias_json = './data/orders/orders_final.parquet'
-    alias_csv1 = './data/restaurant.csv'
-    alias_csv2 = './data/consumer.csv'
-    alias_tar = './data/ab_test_ref.csv'
+    alias_json = os.path.join(fg.output_dir, "orders", fg.final_file_name)
+    alias_csv1 = os.path.join(fg.output_dir, "restaurant.csv")
+    alias_csv2 = os.path.join(fg.output_dir, "consumer.csv")
+    alias_tar = os.path.join(fg.output_dir, "ab_test_ref.csv")
 
     df_json = con.execute(f"SELECT * FROM '{alias_json}' ").df()
     df_csv1 = con.execute(f"""SELECT * FROM read_csv_auto('{alias_csv1}', delim=',', quote='"', escape='\\') """).df()
