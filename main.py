@@ -4,7 +4,8 @@ from funcoes_gerais import FuncoesGerais
 import duckdb
 
 def main():
-    # Carrega variáveis de ambiente
+    
+    print("1. Carrega variáveis de ambiente")
     load_dotenv()
     output_dir = "./data"
     url_s3_orders = os.getenv("URL_S3_ORDERS")
@@ -12,6 +13,7 @@ def main():
     url_s3_merchants = os.getenv("URL_S3_MERCHANTS")
     url_s3_ab_test = os.getenv("URL_S3_AB_TEST")
 
+    print("2. Instacia de classe e variaveis iniciais")
     fg = FuncoesGerais(
         output_dir = output_dir,
         url_s3_orders = url_s3_orders,
@@ -22,7 +24,7 @@ def main():
         final_file_name = "orders_final.parquet"
     )
 
-    # Cria dicionário com as URLs e tipos dos arquivos
+    print("3. Cria dicionário com as URLs e tipos dos arquivos")
     URLS = {
         "orders": {"url": fg.url_s3_orders, "type": "json"},
         "consumers": {"url": fg.url_s3_consumers, "type": "csv"},
@@ -30,10 +32,10 @@ def main():
         "ab_test": {"url": fg.url_s3_ab_test, "type": "tar"}
     }
 
-    # Cria o diretório de saída dos arquivos se não existir
+    print("4. Cria o diretório de saída dos arquivos se não existir")
     fg._create_new_directory()
 
-    # Baixa e processa todos os arquivos
+    print("5. Baixa e processa todos os arquivos")
     for name, info in URLS.items():
         url = info["url"]
         file_type = info["type"]
@@ -44,16 +46,16 @@ def main():
             output_path = os.path.join(fg.output_dir, filename)
             fg.download_and_decompress_gz(url, output_path)
 
-    # Processa o arquivo JSON em streaming e converte em chunks para Parquet
+    print("6. Processa o arquivo JSON em streaming e converte em chunks para Parquet")
     fg.split_jsonlines_to_parquet(os.path.join(fg.output_dir, "order.json"))
 
-    # Concatena os arquivos Parquet em um único arquivo parquet para facilitar a leitura
-    fg.concat_chunks_into_single_file()
+    print("7. Concatena os arquivos Parquet em um único arquivo parquet para facilitar a leitura")
+    fg.concat_chunks_into_single_file2()
 
-    # Deleta os arquivos chunks para reduzir espaço em memória ocupado - opcional
+    print("8. Deleta os arquivos chunks para reduzir espaço em memória ocupado - opcional")
     fg.delete_chunks()
 
-    # Gera os dataframes a partir dos arquivos para realizar as análises
+    print("9. Gera os dataframes a partir dos arquivos para realizar as análises")
     con = duckdb.connect()
 
     alias_json = os.path.join(fg.output_dir, "orders", fg.final_file_name)
@@ -67,6 +69,9 @@ def main():
     df_tar = con.execute(f"SELECT * FROM '{alias_tar}' ").df()
 
 if __name__ == "__main__":
+    
     print("Iniciando execução do processo...")
+    
     main()
+    
     print("Processamento concluído com sucesso!")

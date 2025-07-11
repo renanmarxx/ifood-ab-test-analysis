@@ -36,8 +36,13 @@ class FuncoesGerais:
         """
         Cria o diretório de saída dos arquivos. Se já existir, limpa todos os arquivos e subdiretórios dentro dele.
         """
-    
+
+        print("Valida se o diretório de saída existe e se existe, faz a limpeza. Cria o diretório se não existir")
+
         if os.path.exists(self.output_dir):
+            
+            print(f"Diretório {self.output_dir} já existe. Limpando arquivos antigos...")
+
             for filename in os.listdir(self.output_dir):
                 file_path = os.path.join(self.output_dir, filename)
                 if os.path.isfile(file_path) or os.path.islink(file_path):
@@ -45,13 +50,16 @@ class FuncoesGerais:
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)
         else:
+            print(f"Criando diretório: {self.output_dir}")
             os.makedirs(self.output_dir, exist_ok=True)
 
     def download_and_decompress_gz(self, url, output_path, chunk_size=1024*1024):
         """
         Baixa e descompacta um arquivo .gz a partir de uma URL.
         """
+
         print(f"Baixando e descompactando arquivo: {url} ...")
+
         with requests.get(url, stream=True) as r:
             r.raise_for_status()
             with gzip.GzipFile(fileobj=r.raw) as gz:
@@ -67,7 +75,9 @@ class FuncoesGerais:
         """
         Baixa e extrai um arquivo .tar.gz a partir de uma URL.
         """
+
         print(f"Baixando e extraindo arquivo tar: {url} ...")
+
         tar_gz_path = os.path.join(dest_dir, os.path.basename(url))
         with requests.get(url, stream=True) as r:
             r.raise_for_status()
@@ -84,7 +94,9 @@ class FuncoesGerais:
         """
         Lê um arquivo JSON em streaming e imprime os primeiros itens.
         """
+
         print(f"Lendo arquivo json: {json_path} em streaming com ijson...")
+
         count = 0
         with open(json_path, 'rb') as f:
             for item in ijson.items(f, 'item'):
@@ -95,10 +107,13 @@ class FuncoesGerais:
                     break
         print(f"Total processado: {count}")
 
-    def split_jsonlines_to_parquet(self, json_path, output_dir=None, target_size_mb=250):
+    def split_jsonlines_to_parquet(self, json_path, output_dir = None, target_size_mb = 125):
         """
         Divide um arquivo JSON em vários arquivos Parquet menores.
         """
+
+        print(f"Dividindo arquivo JSON em chunks de {target_size_mb} MB e salvando como Parquet...")
+
         if output_dir is None:
             output_dir = os.path.join(self.output_dir, "orders")
         os.makedirs(output_dir, exist_ok=True)
@@ -132,6 +147,7 @@ class FuncoesGerais:
         """
         Concatena todos os arquivos Parquet em um único arquivo Parquet.
         """
+
         if input_dir is None:
             input_dir = os.path.join(self.output_dir, "orders")
         if output_file is None:
@@ -145,10 +161,34 @@ class FuncoesGerais:
         """)
         print(f"Arquivo: {output_file} gerado com sucesso!")
 
+    def concat_chunks_into_single_file2(self, input_dir=None, output_file=None):
+        """
+        Concatena todos os arquivos Parquet em um único arquivo Parquet de forma eficiente.
+        """
+        import glob
+
+        if input_dir is None:
+            input_dir = os.path.join(self.output_dir, "orders")
+        if output_file is None:
+            output_file = os.path.join(input_dir, self.final_file_name)
+
+        input_paths = sorted(glob.glob(os.path.join(input_dir, "*.parquet")))
+
+        con = duckdb.connect()
+        con.execute(f"CREATE TABLE temp_table AS SELECT * FROM read_parquet('{input_paths[0]}')")
+        for parquet_file in input_paths[1:]:
+            con.execute(f"INSERT INTO temp_table SELECT * FROM read_parquet('{parquet_file}')")
+        con.execute(f"COPY temp_table TO '{output_file}' (FORMAT PARQUET)")
+        con.close()
+        print(f"Arquivo: {output_file} gerado com sucesso!")
+
     def delete_chunks(self, input_dir=None, keep_file=None):
         """
         Deleta todos os arquivos Parquet do diretório, exceto o arquivo final.
         """
+
+        print("Deletando arquivos de chunks, mantendo apenas o arquivo final...")
+
         if input_dir is None:
             input_dir = os.path.join(self.output_dir, "orders")
         if keep_file is None:
