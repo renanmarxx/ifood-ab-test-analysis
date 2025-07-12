@@ -20,7 +20,6 @@ def main():
         url_s3_consumers = url_s3_consumers,
         url_s3_merchants = url_s3_merchants,
         url_s3_ab_test = url_s3_ab_test,
-        n_chunks_in_s3 = 10,
         final_file_name = "orders_final.parquet"
     )
 

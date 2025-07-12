@@ -20,7 +20,6 @@ class FuncoesGerais:
         url_s3_consumers,
         url_s3_merchants,
         url_s3_ab_test,
-        n_chunks_in_s3=10,
         final_file_name="orders_final.parquet"
     ):
         self.output_dir = output_dir
@@ -29,7 +28,6 @@ class FuncoesGerais:
         self.url_s3_merchants = url_s3_merchants
         self.url_s3_ab_test = url_s3_ab_test
         self.json_chunks_prefix = "orders/part-"
-        self.n_chunks_in_s3 = n_chunks_in_s3
         self.final_file_name = final_file_name
 
     def _create_new_directory(self):

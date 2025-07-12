@@ -1,1 +1,60 @@
+# Arquivo de variáveis de ambiente
 .env
+
+# Ambiente virtual Python
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Dados temporários e arquivos de saída
+*.parquet
+*.csv
+*.gz
+*.tar
+*.zip
+*.log
+*.tmp
+*.bak
+
+# Notebooks temporários
+.ipynb_checkpoints
+
+# Configurações de IDE/editor
+.vscode/
+.idea/
+.DS_Store
+*.sublime-workspace
+*.sublime-project
+
+# Arquivos de sistema
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Arquivos de testes
+.coverage
+.tox/
+.pytest_cache/
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Arquivos de build/distribuição
+build/
+dist/
+*.egg-info/
+.eggs/
+MANIFEST
+
+# Arquivos do Jupyter
+*.nbconvert.ipynb
+
+# Outros arquivos que você não quer versionar
+data/
