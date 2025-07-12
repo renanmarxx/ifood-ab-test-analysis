@@ -1,7 +1,3 @@
-# iFood Processo Seletivo
-
-Este projeto realiza o download, processamento e análise de dados do iFood a partir de arquivos públicos.
-
 ## Como rodar o projeto
 
 ### 1. Clone o repositório
@@ -11,22 +7,27 @@ git clone https://github.com/seu-usuario/seu-repo.git
 cd seu-repo
 ```
 
-### 2. Crie e ative um ambiente virtual
+### 2. Instale o Poetry (caso não tenha)
 
 ```sh
-python3 -m venv .venv
-source .venv/bin/activate
+pip install poetry
 ```
 
-### 3. Instale as dependências
+### 3. Instale as dependências e crie o ambiente virtual
 
 ```sh
-pip install -r requirements.txt
+poetry install
 ```
 
-### 4. Configure as variáveis de ambiente
+### 4. Ative o ambiente virtual do Poetry
 
-Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo (ou copie de `.env.example`):
+```sh
+poetry shell
+```
+
+### 5. Configure as variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
 
 ```
 URL_S3_ORDERS="https://data-architect-test-source.s3-sa-east-1.amazonaws.com/order.json.gz"
@@ -35,7 +36,7 @@ URL_S3_MERCHANTS="https://data-architect-test-source.s3-sa-east-1.amazonaws.com/
 URL_S3_AB_TEST="https://data-architect-test-source.s3-sa-east-1.amazonaws.com/ab_test_ref.tar.gz"
 ```
 
-### 5. Execute o pipeline
+### 6. Execute o pipeline
 
 ```sh
 python main.py
@@ -45,8 +46,8 @@ python main.py
 
 - `main.py`: Script principal de execução.
 - `funcoes_gerais.py`: Funções utilitárias para download, processamento e análise.
-- `.env.example`: Exemplo de variáveis de ambiente.
-- `requirements.txt`: Dependências do projeto.
+- `pyproject.toml`: Dependências do projeto.
+- `poetry.lock`: Configurações e demais dependências do projeto.
 
 ## Observações
 
