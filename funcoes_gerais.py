@@ -147,20 +147,20 @@ class FuncoesGerais:
                     self._check_column_types(df, file_idx)
 
                     # Tratamento de colunas 
-                    df['customer_id'] = df['customer_id'].astype(str)
-                    df['order_scheduled_date'] = df['order_scheduled_date'].astype(str)
-                    if 'origin_platform' in df.columns:
-                        df['origin_platform'] = df['origin_platform'].astype(str)
-
-                    for col in ['customer_id', 'order_scheduled_date', 'origin_platform']:
-                        if col in df.columns:
-                            df[col] = df[col].fillna("").astype(str)
-                        
-                        elif col not in df.columns:
-                            df[col] = ""
-                        
-                        else:
-                            print("")
+                    #df['customer_id'] = df['customer_id'].astype(str)
+                    #df['order_scheduled_date'] = df['order_scheduled_date'].astype(str)
+                    #if 'origin_platform' in df.columns:
+                    #    df['origin_platform'] = df['origin_platform'].astype(str)
+                    #
+                    #for col in ['customer_id', 'order_scheduled_date', 'origin_platform']:
+                    #    if col in df.columns:
+                    #        df[col] = df[col].fillna("").astype(str)
+                    #    
+                    #    elif col not in df.columns:
+                    #        df[col] = ""
+                    #    
+                    #    else:
+                    #        print("")
                     
 
                     parquet_path = os.path.join(output_dir, f'orders_part_{file_idx:03d}.parquet')
@@ -212,6 +212,7 @@ class FuncoesGerais:
         input_paths = sorted(glob.glob(os.path.join(input_dir, "*.parquet")))
 
         con = duckdb.connect()
+        print("Criando tabela temporária para concatenação dos chunks...")
         con.execute(f"""CREATE TABLE temp_table AS 
                     SELECT
                         cast(cpf AS VARCHAR) AS cpf
@@ -240,7 +241,10 @@ class FuncoesGerais:
                     FROM 
                         read_parquet('{input_paths[0]}')
                     """)
+
+        print(f"Adicionando {len(input_paths) - 1} chunks à tabela temporária...")
         for parquet_file in input_paths[1:]:
+            print(f"Adicionando chunk: {parquet_file}")
             con.execute(f"""INSERT INTO temp_table 
                         SELECT 
                             cast(cpf AS VARCHAR) AS cpf
