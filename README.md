@@ -1,3 +1,7 @@
+# iFood A/B Test Data Analysis - Processo Seletivo
+
+Este projeto realiza o download, processamento e análise de dados do iFood a partir de arquivos disponibilizados em Buckets S3 públicos na AWS.
+
 ## Como rodar o projeto
 
 ### 1. Clone o repositório
