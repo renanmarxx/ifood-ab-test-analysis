@@ -75,9 +75,9 @@ A estrutura da pasta no diretório deve seguir o exemplo:
 python main.py
 ```
 
-### 12. OU Execute o notebook (ifood_test_ab_case_renan_marx.ipynb) a partir da primeira célula para extrair os dados e executar as análises
+### 12. OU Execute o notebook [ifood_test_ab_case_renan_marx.ipynb](https://github.com/renanmarxx/ifood-ab-test-analysis/blob/main/analysis/ifood_test_ab_case_renan_marx.ipynb) a partir da primeira célula para extrair os dados e executar as análises.
 
-### Em ambos os casos (passo 11 ou 12), a execução fará a extração dos dados necessários para as análises que foram feitas a partir de funções que foram construídas no arquivo `funcoes_gerais.py`
+#### Obs.: em ambos os casos (passo 11 ou 12), a execução fará a extração dos dados necessários para as análises que foram feitas a partir de funções que foram construídas no arquivo `funcoes_gerais.py`
 
 Arquivos principais:
 - `main.py`: Script principal de execução.
