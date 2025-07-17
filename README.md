@@ -4,8 +4,8 @@ Este projeto tem por finalidade analisar os resultados de um teste A/B em campan
 
 Neste repositório contém os arquivos e frameworks responsáveis pelo download, processamento e análise de dados do iFood a partir de arquivos disponibilizados em Buckets S3 públicos na AWS.
 
-O relatório completo com as análises está nesta pasta: (analysis/relatório ) e também neste (link do Google Drive)
-O notebook com a extração dos dados e análises está nesta pasta: (analysis/ifood_test_ab_case_renan_marx.ipynb)
+O relatório completo com as análises está nesta pasta: [analysis/relatório](https://github.com/renanmarxx/ifood-ab-test-analysis/blob/main/analysis/relatorio/iFood%20-%20Relat%C3%B3rio%20-%20Case%20-%20Data%20Analysis%20-%20Teste%20A_B%20-%20Renan%20Marx%20Luz%20Mendes.pdf) e também neste [link do Google Drive](https://drive.google.com/drive/folders/1xPLzJqB2LFUyu9JJwCH64nTEklO9V-4T?usp=sharing)
+O notebook com a extração dos dados e análises está nesta pasta: [analysis/ifood_test_ab_case_renan_marx.ipynb](https://github.com/renanmarxx/ifood-ab-test-analysis/blob/main/analysis/ifood_test_ab_case_renan_marx.ipynb)
 
 ## O projeto foi desenvolvido em ambiente virtual utilizando as bibliotecas pyenv e poetry. Será necessário previamente instalar essas bibliotecas para ter sucesso na execução.
 
@@ -20,11 +20,14 @@ git init
 ```
 
 ### 3. Faça o clone do repositório
+```sh
 git clone https://github.com/renanmarxx/ifood-ab-test-analysis.git
-
+```
 
 ### 4. Acesse a pasta do resositório
+```sh
 cd ifood-ab-test-analysis
+```
 
 ### 5. Instalar a versão do pyenv necessária:
 ```sh
@@ -59,7 +62,7 @@ URL_S3_MERCHANTS="https://data-architect-test-source.s3-sa-east-1.amazonaws.com/
 URL_S3_AB_TEST="https://data-architect-test-source.s3-sa-east-1.amazonaws.com/ab_test_ref.tar.gz"
 ```
 
-### 11. Execute o arquivo para extrair os dados:
+### 11. Execute o arquivo `main.py` para extrair os dados OU:
 
 ```sh
 python main.py
@@ -81,6 +84,6 @@ Arquivos principais:
 - O arquivo `.env` **não é versionado** por segurança.
 - Os arquivos de dados baixados e processados são salvos na pasta `./analysis/data/`.
 - Para ter sucesso na definição dos ambientes virtuais, instalação de pacotes e execução dos arquivos e notebook, se faz necessário que o ambiente virtual esteja ativado e em uso.
-- Os arquivos ocupam bastante memória de execução, por conta disso recomenda-se que o projeto seja executado em ambiente com maiores recursos de máquina e memória.
+- **Os arquivos ocupam bastante memória de execução, por conta disso recomenda-se que o projeto seja executado em ambiente com maiores recursos de máquina e memória**.
 
 ---
