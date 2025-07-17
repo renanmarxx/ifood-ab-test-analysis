@@ -4,8 +4,9 @@ Este projeto tem por finalidade analisar os resultados de um teste A/B em campan
 
 Neste repositório contém os arquivos e frameworks responsáveis pelo download, processamento e análise de dados do iFood a partir de arquivos disponibilizados em Buckets S3 públicos na AWS.
 
-O relatório completo com as análises está nesta pasta: [analysis/relatório](https://github.com/renanmarxx/ifood-ab-test-analysis/blob/main/analysis/relatorio/iFood%20-%20Relat%C3%B3rio%20-%20Case%20-%20Data%20Analysis%20-%20Teste%20A_B%20-%20Renan%20Marx%20Luz%20Mendes.pdf) e também neste [link do Google Drive](https://drive.google.com/drive/folders/1xPLzJqB2LFUyu9JJwCH64nTEklO9V-4T?usp=sharing)
-O notebook com a extração dos dados e análises está nesta pasta: [analysis/ifood_test_ab_case_renan_marx.ipynb](https://github.com/renanmarxx/ifood-ab-test-analysis/blob/main/analysis/ifood_test_ab_case_renan_marx.ipynb)
+O relatório completo com as análises está nesta pasta: [analysis/relatório](https://github.com/renanmarxx/ifood-ab-test-analysis/blob/main/analysis/relatorio/iFood%20-%20Relat%C3%B3rio%20-%20Case%20-%20Data%20Analysis%20-%20Teste%20A_B%20-%20Renan%20Marx%20Luz%20Mendes.pdf) e também neste [link do Google Drive](https://drive.google.com/drive/folders/1xPLzJqB2LFUyu9JJwCH64nTEklO9V-4T?usp=sharing).
+
+O notebook com a extração dos dados e análises está nesta pasta: [analysis/ifood_test_ab_case_renan_marx.ipynb](https://github.com/renanmarxx/ifood-ab-test-analysis/blob/main/analysis/ifood_test_ab_case_renan_marx.ipynb).
 
 ## O projeto foi desenvolvido em ambiente virtual utilizando as bibliotecas `pyenv` e `poetry`. Será necessário previamente instalar essas bibliotecas para ter sucesso na execução.
 
