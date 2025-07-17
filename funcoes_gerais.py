@@ -105,7 +105,7 @@ class FuncoesGerais:
         count = 0
         with open(json_path, 'rb') as f:
             for item in ijson.items(f, 'item'):
-                print(item)  # Aqui você faz o processamento desejado
+                print(item)  
                 count += 1
                 if count >= limit:
                     print(f'Limite de {limit} itens atingido (apenas para exemplo)')

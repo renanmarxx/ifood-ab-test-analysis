@@ -7,7 +7,7 @@ def main():
     
     print("1. Carrega variáveis de ambiente")
     load_dotenv()
-    output_dir = "./data"
+    output_dir = "../data"
     url_s3_orders = os.getenv("URL_S3_ORDERS")
     url_s3_consumers = os.getenv("URL_S3_CONSUMERS")
     url_s3_merchants = os.getenv("URL_S3_MERCHANTS")
