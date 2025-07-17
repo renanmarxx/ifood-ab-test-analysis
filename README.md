@@ -65,6 +65,10 @@ URL_S3_MERCHANTS="https://data-architect-test-source.s3-sa-east-1.amazonaws.com/
 URL_S3_AB_TEST="https://data-architect-test-source.s3-sa-east-1.amazonaws.com/ab_test_ref.tar.gz"
 ```
 
+A estrutura da pasta no diretório deve seguir o exemplo:
+
+![Estrutura Diretorio](./fotos/estrutura_diretorio.png)
+
 ### 11. Execute o arquivo `main.py` para extrair os dados OU:
 
 ```sh
