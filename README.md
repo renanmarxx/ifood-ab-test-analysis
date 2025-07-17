@@ -47,7 +47,7 @@ pyenv local 3.12.5
 poetry env use 3.12.5
 ```
 
-### 8. Acessar e ativar o ambiente virtual:
+### 8. Ativar e acessar o ambiente virtual:
 ```sh
 source .venv/Scripts/activate
 ```
