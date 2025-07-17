@@ -143,24 +143,7 @@ class FuncoesGerais:
                 if bytes_so_far >= max_size_bytes:
                     df = pd.DataFrame(chunk)
                     self._check_column_types(df, file_idx)
-
-                    # Tratamento de colunas 
-                    #df['customer_id'] = df['customer_id'].astype(str)
-                    #df['order_scheduled_date'] = df['order_scheduled_date'].astype(str)
-                    #if 'origin_platform' in df.columns:
-                    #    df['origin_platform'] = df['origin_platform'].astype(str)
-                    #
-                    #for col in ['customer_id', 'order_scheduled_date', 'origin_platform']:
-                    #    if col in df.columns:
-                    #        df[col] = df[col].fillna("").astype(str)
-                    #    
-                    #    elif col not in df.columns:
-                    #        df[col] = ""
-                    #    
-                    #    else:
-                    #        print("")
                     
-
                     parquet_path = os.path.join(output_dir, f'orders_part_{file_idx:03d}.parquet')
                     df.to_parquet(parquet_path, index=False)
                     print(f"Salvou: {parquet_path} (~{bytes_so_far/1024/1024:.2f} MB)")
@@ -172,22 +155,6 @@ class FuncoesGerais:
             if chunk:
                 df = pd.DataFrame(chunk)
                 self._check_column_types(df, file_idx)
-
-                # Tratamento de colunas 
-                #df['customer_id'] = df['customer_id'].astype(str)
-                #df['order_scheduled_date'] = df['order_scheduled_date'].astype(str)
-                #if 'origin_platform' in df.columns:
-                #    df['origin_platform'] = df['origin_platform'].astype(str)
-
-                #for col in ['customer_id', 'order_scheduled_date', 'origin_platform']:
-                #    if col in df.columns:
-                #        df[col] = df[col].fillna("").astype(str)
-                #    
-                #    elif col not in df.columns:
-                #        df[col] = ""
-                #    
-                #    else:
-                #        print("")
 
                 parquet_path = os.path.join(output_dir, f'orders_part_{file_idx:03d}.parquet')
                 df.to_parquet(parquet_path, index=False)
