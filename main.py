@@ -44,7 +44,7 @@ def main():
             filename = os.path.basename(url)[:-3] if url.endswith('.gz') else os.path.basename(url)
             output_path = os.path.join(fg.output_dir, filename)
             fg.download_and_decompress_gz(url, output_path)
-
+    
     print("6. Processa o arquivo JSON em streaming e converte em chunks para Parquet")
     fg.split_jsonlines_to_parquet(os.path.join(fg.output_dir, "order.json"))
 
