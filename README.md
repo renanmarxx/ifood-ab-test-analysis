@@ -13,10 +13,12 @@ O notebook com a extração dos dados e análises está nesta pasta: [analysis/i
 ## Para executar o projeto:
 
 ### 1. Acesse sua pasta de desejo para fazer o clone do repositório:
+```sh
 cd caminho_da_pasta
+```
 
 ### 2. Dê início no git na pasta desejada:
-```
+```sh
 git init
 ```
 
